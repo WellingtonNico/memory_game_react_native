@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export default StyleSheet.create({
   imageFit: {
     flex: 1,
-    height: undefined,
-    width: undefined
+    height: '100%',
+    width: '100%'
   }
 })

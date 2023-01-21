@@ -9,6 +9,7 @@ import AnimatedPressable from '../components/animated/AnimatedPressable'
 import { getScreenHeight } from '../utils/utils'
 import { VSpacer } from '../components/layout/spacers'
 import global from '../styles/global'
+import AnimatedVerticalFade from '../components/animated/AnimatedVerticalFade'
 
 const ChooseDeck = ({ navigation }) => {
 
@@ -19,9 +20,9 @@ const ChooseDeck = ({ navigation }) => {
     { deckLetter: 'S', source: sCard },
   ]
 
-  const chooseDeck = (deckLetter) =>{
-    console.log('nav param',{deckLetter})
-    navigation.navigate('Jogo da Memória',{deckLetter})
+  const chooseDeck = (deckLetter) => {
+    console.log('nav param', { deckLetter })
+    navigation.navigate('Jogo da Memória', { deckLetter })
   }
 
   return (
@@ -35,10 +36,13 @@ const ChooseDeck = ({ navigation }) => {
       <View>
         <Row flexWrap='wrap' >
           {deckCards.map(card => (
+
             <View key={card.deckLetter} style={styles.cardCol}>
-              <AnimatedPressable onPressOut={()=>chooseDeck(card.deckLetter)}>
-                <Image source={card.source} style={global.imageFit} />
-              </AnimatedPressable>
+              <AnimatedVerticalFade >
+                <AnimatedPressable onPressOut={() => chooseDeck(card.deckLetter)}>
+                  <Image source={card.source} style={global.imageFit} />
+                </AnimatedPressable>
+              </AnimatedVerticalFade>
             </View>
           ))}
         </Row>

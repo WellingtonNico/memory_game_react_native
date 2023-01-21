@@ -7,6 +7,7 @@ import { C_CARDS_LIST, S_CARDS_LIST, H_CARDS_LIST, D_CARDS_LIST } from '../const
 import global from '../styles/global'
 import { getScreenHeight, shuffleArray } from '../utils/utils'
 import cardBack from '../../assets/back.png'
+import AnimatedVerticalFade from '../components/animated/AnimatedVerticalFade'
 
 
 {/* <AnimatedPressable
@@ -54,14 +55,14 @@ const Game = ({ navigation, route }) => {
     }
   }, [])
 
-  useEffect(()=>{
-    if(!alreadyAnimated&&displayDeck.length>0){
+  useEffect(() => {
+    if (!alreadyAnimated && displayDeck.length > 0) {
       setAlreadyAnimated(true)
       setTimeout(() => {
         animateStartGame(0)
       }, 500)
     }
-  },[displayDeck])
+  }, [displayDeck])
 
   const animateStartGame = async (incomingIndex) => {
     var index = incomingIndex
@@ -93,15 +94,17 @@ const Game = ({ navigation, route }) => {
         <Row flexWrap='wrap'>
           {displayDeck?.map((card, index) => (
             <View key={index} style={styles.cardCol}>
-              <AnimatedPressable onPress={() => flipCard(index)}>
-                <AnimatedFlip
-                  frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
-                  backContent={<Image source={card.source} style={[global.imageFit]} />}
-                  isFlipped={card.isFlipped}
-                  flipDuration={500}
-                />
-                <Image source={card.source} style={global.imageFit} />
-              </AnimatedPressable>
+              <AnimatedVerticalFade >
+                <AnimatedPressable onPress={() => flipCard(index)}>
+                  <AnimatedFlip
+                    frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
+                    backContent={<Image source={card.source} style={[global.imageFit]} />}
+                    isFlipped={card.isFlipped}
+                    flipDuration={500}
+                  />
+                  <Image source={card.source} style={global.imageFit} />
+                </AnimatedPressable>
+              </AnimatedVerticalFade>
             </View>
           ))}
         </Row>
