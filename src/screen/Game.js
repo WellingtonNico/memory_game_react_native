@@ -41,6 +41,8 @@ const Game = ({ navigation, route }) => {
   const [matches, setMatches] = useState(0)
 
   const setUpGame = () => {
+    setAttempts(0)
+    setMatches(0)
     setAlreadyAnimated(false)
     if (currentDeck.length > 0) {
       const deck = [...currentDeck, ...currentDeck]
@@ -134,14 +136,14 @@ const Game = ({ navigation, route }) => {
 
   // responsável por verificar se ainda restam movimentos a serem feitos, contagem e display do resultado
   useEffect(() => {
-    if (matches == displayDeck.length / 2) {
+    if (matches == displayDeck.length / 2&&matches>0) {
       setTimeout(() => {
         Alert.alert(
           'Jogo Finalizado',
           `
-          Veja seus resultados abaixo:\n
+          Veja seus resultados abaixo\n
           Tentativas: ${attempts}\n
-          Porcentagem de Acerto: ${(matches * 100 / attempts).toFixed(2)}%
+          Acerto: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
           `,
           [
             { text: 'Reiniciar', onPress: setUpGame },
