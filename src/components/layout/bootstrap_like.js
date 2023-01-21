@@ -18,7 +18,7 @@ export const Col =({children,...rest}) =>{
 }
 
 export const Title= ({children})=>{
-  return <Text style={{fontSize:25,fontWeight:'bold',color:'white'}}>
+  return <Text style={{fontSize:25,fontWeight:'bold'}}>
     {children}
   </Text>
 }

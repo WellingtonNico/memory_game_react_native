@@ -31,7 +31,7 @@ const AVAILABLE_DECKS = {
 
 const Game = ({ navigation, route }) => {
 
-  const currentDeck = (AVAILABLE_DECKS[route.params?.deckLetter] ?? []).slice(0, (route.params.cardsQuantity ?? 26) / 2)
+  const currentDeck = (AVAILABLE_DECKS[route.params?.deckLetter] ?? []).slice(0, (route.params.dificultyLevel ?? 26) / 2)
   const [displayDeck, setDisplayDeck] = useState([])
   const [startAnimationFinished, setStartAnimationFinished] = useState(false)
   const [alreadyAnimated, setAlreadyAnimated] = useState(null)
@@ -141,9 +141,9 @@ const Game = ({ navigation, route }) => {
         Alert.alert(
           'Jogo Finalizado',
           `
-          Veja seus resultados abaixo\n
-          Tentativas: ${attempts}\n
-          Acerto: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
+Veja seus resultados abaixo\n
+Tentativas: ${attempts}\n
+Acertos: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
           `,
           [
             { text: 'Reiniciar', onPress: setUpGame },
@@ -155,7 +155,7 @@ const Game = ({ navigation, route }) => {
   }, [matches])
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'black', justifyContent: 'center' }}>
+    <SafeAreaView style={{ flex: 1, justifyContent: 'center' }}>
       <View>
         <Row flexWrap='wrap'>
           {displayDeck?.map((card, index) => (

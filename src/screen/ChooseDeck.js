@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { Col, Row, Title } from '../components/layout/bootstrap_like'
 import cCard from '../../assets/cards/AC.png'
 import hCard from '../../assets/cards/AH.png'
@@ -10,6 +10,8 @@ import { getScreenHeight } from '../utils/utils'
 import { VSpacer } from '../components/layout/spacers'
 import global from '../styles/global'
 import AnimatedVerticalFade from '../components/animated/AnimatedVerticalFade'
+import { Picker } from '@react-native-picker/picker';
+
 
 const ChooseDeck = ({ navigation }) => {
 
@@ -20,13 +22,21 @@ const ChooseDeck = ({ navigation }) => {
     { deckLetter: 'S', source: sCard },
   ]
 
+  const dificultyLevels = [
+    { value: 26, label: 'Difícil' },
+    { value: 14, label: 'Médio' },
+    { value: 8, label: 'Fácil' },
+  ]
+
+  const [dificultyLevel, setDificultyLevel] = useState(dificultyLevels[0].value)
+
   const chooseDeck = (deckLetter) => {
     console.log('nav param', { deckLetter })
-    navigation.navigate('Jogo da Memória', { deckLetter })
+    navigation.navigate('Jogo da Memória', { deckLetter, dificultyLevel })
   }
 
   return (
-    <Col backgroundColor='black' flex={1} justifyContent='center'>
+    <Col flex={1} justifyContent='center'>
       <View>
         <Row >
           <Title>Escolha um Naipe</Title>
@@ -35,7 +45,7 @@ const ChooseDeck = ({ navigation }) => {
       <VSpacer size={20} />
       <View>
         <Row flexWrap='wrap' >
-          {deckCards.map(card => (
+          {deckCards.slice(0, 2).map(card => (
             <View key={card.deckLetter} style={styles.cardCol}>
               <AnimatedVerticalFade >
                 <AnimatedPressable onPress={() => chooseDeck(card.deckLetter)}>
@@ -44,6 +54,35 @@ const ChooseDeck = ({ navigation }) => {
               </AnimatedVerticalFade>
             </View>
           ))}
+        </Row>
+        <Row flexWrap='wrap' >
+          {deckCards.slice(2, 4).map(card => (
+            <View key={card.deckLetter} style={styles.cardCol}>
+              <AnimatedVerticalFade >
+                <AnimatedPressable onPress={() => chooseDeck(card.deckLetter)}>
+                  <Image source={card.source} style={global.imageFit} />
+                </AnimatedPressable>
+              </AnimatedVerticalFade>
+            </View>
+          ))}
+        </Row>
+        <VSpacer size={15}/>
+        <Row >
+          <Col width='100%' alignItems='center'>
+            <Text style={{fontSize:20,marginBottom:0}}>Dificuldade</Text>
+            <Picker
+              numberOfLines={2}
+              style={{ width: '50%', height: 40 }}
+              selectedValue={dificultyLevel}
+              onValueChange={(itemValue) => {
+                setDificultyLevel(itemValue)
+              }}
+            >
+              {dificultyLevels.map(level => (
+                <Picker.Item itemValue={level.value} value={level.value} key={level.value} label={level.label} />
+              ))}
+            </Picker>
+          </Col>
         </Row>
       </View>
     </Col>
