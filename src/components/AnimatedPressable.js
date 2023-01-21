@@ -12,6 +12,7 @@ export default function AnimatedPressable({
 
   const pressedStyle = useAnimatedStyle(() => {
     return {
+
       height: `${interpolate(isPressed.value, [NOT_PRESSED, PRESSED], [100, 95])}%`,
       width: `${interpolate(isPressed.value, [NOT_PRESSED, PRESSED], [100, 95])}%`,
     }
@@ -42,6 +43,7 @@ export default function AnimatedPressable({
           }
         )
       }}
+      style={{justifyContent:'center',alignItems:'center',height:'100%',width:'100%'}}
       {...rest}
     >
       <Animated.View style={pressedStyle}>
