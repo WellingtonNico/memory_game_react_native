@@ -94,11 +94,14 @@ const Game = ({ navigation, route }) => {
 
 
   const flipCard = (index) => {
-    setDisplayDeck(displayDeck.map((card, cardIndex) => index == cardIndex ? { ...card, isFlipped: true } : card))
+    setDisplayDeck(displayDeck.map(
+      (card, cardIndex) =>
+        index == cardIndex ? { ...card, isFlipped: true } : card
+    ))
   }
 
   const handleCardClicked = (index) => {
-    if(!startAnimationFinished){
+    if (!startAnimationFinished) {
       return
     }
     if (!firstSelectedCard || !secondSelectedCard) {
@@ -113,7 +116,10 @@ const Game = ({ navigation, route }) => {
   }
 
   const unFlipSelectedCards = (selectedCardIndexes) => {
-    setDisplayDeck(displayDeck.map((card, cardIndex) => selectedCardIndexes.includes(cardIndex) ? { ...card, isFlipped: false } : card))
+    setDisplayDeck(displayDeck.map(
+      (card, cardIndex) =>
+        selectedCardIndexes.includes(cardIndex) ? { ...card, isFlipped: false } : card
+    ))
   }
 
 
@@ -136,7 +142,7 @@ const Game = ({ navigation, route }) => {
 
   // responsável por verificar se ainda restam movimentos a serem feitos, contagem e display do resultado
   useEffect(() => {
-    if (matches == displayDeck.length / 2&&matches>0) {
+    if (matches == displayDeck.length / 2 && matches > 0) {
       setTimeout(() => {
         Alert.alert(
           'Jogo Finalizado',
