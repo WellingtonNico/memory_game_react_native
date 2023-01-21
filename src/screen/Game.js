@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Image, SafeAreaView } from 'react-native'
-import AnimatedFlip from "../components/AnimatedFlip"
-import AnimatedPressable from "../components/AnimatedPressable"
+import AnimatedFlip from "../components/animated/AnimatedFlip"
+import AnimatedPressable from "../components/animated/AnimatedPressable"
 import { Col, Row } from '../components/layout/bootstrap_like'
 import { C_CARDS_LIST, S_CARDS_LIST, H_CARDS_LIST, D_CARDS_LIST } from '../constants'
 import global from '../styles/global'
