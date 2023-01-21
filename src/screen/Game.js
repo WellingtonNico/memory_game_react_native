@@ -93,7 +93,7 @@ const Game = ({ navigation, route }) => {
         <Row flexWrap='wrap'>
           {displayDeck?.map((card, index) => (
             <View key={index} style={styles.cardCol}>
-              <AnimatedPressable onPressOut={() => flipCard(index)}>
+              <AnimatedPressable onPress={() => flipCard(index)}>
                 <AnimatedFlip
                   frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
                   backContent={<Image source={card.source} style={[global.imageFit]} />}
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     margin: 2,
   },
   cardBack: {
-    borderRadius: 10
+    borderRadius: 5
   }
 });
 
