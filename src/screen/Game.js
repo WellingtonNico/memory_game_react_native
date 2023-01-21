@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, Image, SafeAreaView } from 'react-native'
+import { View, Alert, StyleSheet, Image, SafeAreaView } from 'react-native'
 import AnimatedFlip from "../components/animated/AnimatedFlip"
 import AnimatedPressable from "../components/animated/AnimatedPressable"
 import { Col, Row } from '../components/layout/bootstrap_like'
@@ -32,18 +32,16 @@ const AVAILABLE_DECKS = {
 const Game = ({ navigation, route }) => {
 
   const currentDeck = (AVAILABLE_DECKS[route.params?.deckLetter] ?? []).slice(0, (route.params.cardsQuantity ?? 26) / 2)
-  // const [currentCardsList, setCurrentCardsList] = useState(currentDeck ? [...currentDeck, ...currentDeck] : [])
   const [displayDeck, setDisplayDeck] = useState([])
-  const [alreadyAnimated, setAlreadyAnimated] = useState(false)
+  const [startAnimationFinished, setStartAnimationFinished] = useState(false)
+  const [alreadyAnimated, setAlreadyAnimated] = useState(null)
   const [firstSelectedCard, setFirstSelectedCard] = useState(null)
   const [secondSelectedCard, setSecondSelectedCard] = useState(null)
+  const [attempts, setAttempts] = useState(0)
+  const [matches, setMatches] = useState(0)
 
-
-  useEffect(() => {
-    console.log(route.params)
-  }, [route])
-
-  useEffect(() => {
+  const setUpGame = () => {
+    setAlreadyAnimated(false)
     if (currentDeck.length > 0) {
       const deck = [...currentDeck, ...currentDeck]
       setDisplayDeck(deck.map(source => ({
@@ -51,18 +49,33 @@ const Game = ({ navigation, route }) => {
         isFound: false,
         isFlipped: false
       })))
-
     }
+  }
+
+
+  // este é responsável por montar a lista de cartas pura sem embaralhar
+  useEffect(() => {
+    setUpGame()
   }, [])
 
+  // este é resonsável por disparar a animação
   useEffect(() => {
     if (!alreadyAnimated && displayDeck.length > 0) {
       setAlreadyAnimated(true)
       setTimeout(() => {
+        setStartAnimationFinished(false)
         animateStartGame(0)
       }, 500)
     }
   }, [displayDeck])
+
+
+  // este é responsável por embaralhar as cartas após a animação inicial
+  useEffect(() => {
+    if (startAnimationFinished == true) {
+      setDisplayDeck(shuffleArray(displayDeck))
+    }
+  }, [startAnimationFinished])
 
   const animateStartGame = async (incomingIndex) => {
     var index = incomingIndex
@@ -71,8 +84,8 @@ const Game = ({ navigation, route }) => {
       index++
       if (index <= displayDeck.length) {
         animateStartGame(index)
-      } else if (displayDeck.length > 0) {
-        setDisplayDeck(shuffleArray(displayDeck))
+      } else {
+        setStartAnimationFinished(true)
       }
     }, 150)
   }
@@ -82,11 +95,62 @@ const Game = ({ navigation, route }) => {
     setDisplayDeck(displayDeck.map((card, cardIndex) => index == cardIndex ? { ...card, isFlipped: true } : card))
   }
 
-  const unFlipSelectedCards = ([selectedCardIndexes]) => {
-    setDisplayDeck(displayDeck.map((card, cardIndex) => selectedCardIndexes.contains(cardIndex) ? { ...card, isFlipped: false } : card))
-    setFirstSelectedCard(null)
-    setSecondSelectedCard(null)
+  const handleCardClicked = (index) => {
+    if(!startAnimationFinished){
+      return
+    }
+    if (!firstSelectedCard || !secondSelectedCard) {
+      const selectedCard = { cardData: displayDeck[index], index }
+      if (firstSelectedCard == null) {
+        setFirstSelectedCard(selectedCard)
+      } else {
+        setSecondSelectedCard(selectedCard)
+      }
+      flipCard(index)
+    }
   }
+
+  const unFlipSelectedCards = (selectedCardIndexes) => {
+    setDisplayDeck(displayDeck.map((card, cardIndex) => selectedCardIndexes.includes(cardIndex) ? { ...card, isFlipped: false } : card))
+  }
+
+
+  // este é reponsável por verificar se houve match nas cartas selecionadas
+  useEffect(() => {
+    if (firstSelectedCard != null && secondSelectedCard != null) {
+      if (firstSelectedCard.cardData.source != secondSelectedCard.cardData.source) {
+        setTimeout(() => {
+          unFlipSelectedCards([firstSelectedCard.index, secondSelectedCard.index])
+        }, 500)
+      } else {
+        setMatches(p => p + 1)
+      }
+      setFirstSelectedCard(null)
+      setSecondSelectedCard(null)
+      setAttempts(p => p + 1)
+    }
+  }, [firstSelectedCard, secondSelectedCard])
+
+
+  // responsável por verificar se ainda restam movimentos a serem feitos, contagem e display do resultado
+  useEffect(() => {
+    if (matches == displayDeck.length / 2) {
+      setTimeout(() => {
+        Alert.alert(
+          'Jogo Finalizado',
+          `
+          Veja seus resultados abaixo:\n
+          Tentativas: ${attempts}\n
+          Porcentagem de Acerto: ${(matches * 100 / attempts).toFixed(2)}%
+          `,
+          [
+            { text: 'Reiniciar', onPress: setUpGame },
+            { text: 'Escolher Naipe', onPress: () => navigation.goBack('ChooseDeck') }
+          ]
+        )
+      }, 500)
+    }
+  }, [matches])
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'black', justifyContent: 'center' }}>
@@ -95,7 +159,7 @@ const Game = ({ navigation, route }) => {
           {displayDeck?.map((card, index) => (
             <View key={index} style={styles.cardCol}>
               <AnimatedVerticalFade >
-                <AnimatedPressable onPress={() => flipCard(index)}>
+                <AnimatedPressable onPress={() => handleCardClicked(index)}>
                   <AnimatedFlip
                     frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
                     backContent={<Image source={card.source} style={[global.imageFit]} />}
@@ -121,6 +185,11 @@ const styles = StyleSheet.create({
   },
   cardBack: {
     borderRadius: 5
+  },
+  text: {
+    color: 'white',
+    paddingLeft: 12,
+    fontWeight: 'bold'
   }
 });
 

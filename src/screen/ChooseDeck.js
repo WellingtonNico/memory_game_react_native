@@ -29,17 +29,16 @@ const ChooseDeck = ({ navigation }) => {
     <Col backgroundColor='black' flex={1} justifyContent='center'>
       <View>
         <Row >
-          <Title>Escolha um Deck</Title>
+          <Title>Escolha um Naipe</Title>
         </Row>
       </View>
       <VSpacer size={20} />
       <View>
         <Row flexWrap='wrap' >
           {deckCards.map(card => (
-
             <View key={card.deckLetter} style={styles.cardCol}>
               <AnimatedVerticalFade >
-                <AnimatedPressable onPressOut={() => chooseDeck(card.deckLetter)}>
+                <AnimatedPressable onPress={() => chooseDeck(card.deckLetter)}>
                   <Image source={card.source} style={global.imageFit} />
                 </AnimatedPressable>
               </AnimatedVerticalFade>
