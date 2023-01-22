@@ -61,7 +61,7 @@ const ChooseDeck = ({ navigation }) => {
           {deckCards.slice(0, 2).map(card => (
             <View key={card.deckLetter} style={styles.cardCol}>
               <AnimatedVerticalFade >
-                <AnimatedPressable onPress={() => chooseDeck(card.deckLetter)}>
+                <AnimatedPressable pressedScale={.9} onPress={() => chooseDeck(card.deckLetter)}>
                   <Image source={card.source} style={global.imageFit} />
                 </AnimatedPressable>
               </AnimatedVerticalFade>
@@ -72,7 +72,7 @@ const ChooseDeck = ({ navigation }) => {
           {deckCards.slice(2, 4).map(card => (
             <View key={card.deckLetter} style={styles.cardCol}>
               <AnimatedVerticalFade >
-                <AnimatedPressable onPress={() => chooseDeck(card.deckLetter)}>
+                <AnimatedPressable pressedScale={.9} onPress={() => chooseDeck(card.deckLetter)}>
                   <Image source={card.source} style={global.imageFit} />
                 </AnimatedPressable>
               </AnimatedVerticalFade>

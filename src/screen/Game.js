@@ -167,7 +167,7 @@ Acertos: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
           {displayDeck?.map((card, index) => (
             <View key={index} style={styles.cardCol}>
               <AnimatedVerticalFade >
-                <AnimatedPressable onPress={() => handleCardClicked(index)}>
+                <AnimatedPressable pressedScale={.8} onPress={() => handleCardClicked(index)}>
                   <AnimatedFlip
                     frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
                     backContent={<Image source={card.source} style={[global.imageFit]} />}
