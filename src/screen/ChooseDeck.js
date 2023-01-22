@@ -11,6 +11,7 @@ import { VSpacer } from '../components/layout/spacers'
 import global from '../styles/global'
 import AnimatedVerticalFade from '../components/animated/AnimatedVerticalFade'
 import { Picker } from '@react-native-picker/picker';
+import { useIsFocused } from '@react-navigation/native'
 
 
 const ChooseDeck = ({ navigation }) => {
@@ -35,11 +36,23 @@ const ChooseDeck = ({ navigation }) => {
     navigation.navigate('Jogo da Memória', { deckLetter, dificultyLevel })
   }
 
+  const isFocused = useIsFocused();
+
+  if (!isFocused) {
+    return null
+  }
+
   return (
     <Col flex={1} justifyContent='center'>
       <View>
-        <Row >
-          <Title>Escolha um Naipe</Title>
+        <Row  >
+          <AnimatedVerticalFade initialPosition={-200}>
+            <Col>
+              <Row>
+                <Title>Escolha um Naipe</Title>
+              </Row>
+            </Col>
+          </AnimatedVerticalFade>
         </Row>
       </View>
       <VSpacer size={20} />
@@ -66,23 +79,25 @@ const ChooseDeck = ({ navigation }) => {
             </View>
           ))}
         </Row>
-        <VSpacer size={15}/>
+        <VSpacer size={15} />
         <Row >
-          <Col width='100%' alignItems='center'>
-            <Text style={{fontSize:20,marginBottom:0}}>Dificuldade</Text>
-            <Picker
-              numberOfLines={2}
-              style={{ width: '50%', height: 40 }}
-              selectedValue={dificultyLevel}
-              onValueChange={(itemValue) => {
-                setDificultyLevel(itemValue)
-              }}
-            >
-              {dificultyLevels.map(level => (
-                <Picker.Item itemValue={level.value} value={level.value} key={level.value} label={level.label} />
-              ))}
-            </Picker>
-          </Col>
+          <AnimatedVerticalFade>
+            <Col width='100%' alignItems='center'>
+              <Text style={{ fontSize: 20, marginBottom: 0 }}>Dificuldade</Text>
+              <Picker
+                numberOfLines={2}
+                style={{ width: '50%', height: 40 }}
+                selectedValue={dificultyLevel}
+                onValueChange={(itemValue) => {
+                  setDificultyLevel(itemValue)
+                }}
+              >
+                {dificultyLevels.map(level => (
+                  <Picker.Item itemValue={level.value} value={level.value} key={level.value} label={level.label} />
+                ))}
+              </Picker>
+            </Col>
+          </AnimatedVerticalFade>
         </Row>
       </View>
     </Col>
