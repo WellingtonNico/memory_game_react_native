@@ -14,7 +14,7 @@ Enjoy it!
 First you'll need to install all javascript packages
 
 ### `npx pod-install ios`(if you're in source folder) or `pod install`(if you're inside ios folder)
-You'll also need to install some ruby packages
+You'll also need to install some ruby packages, be sure you have a ruby version installed compatible with cocoapods ~> 1.11 >= 1.11.3.
 
 ### `npm run android` or `npm run ios`
-Choose one of these commands to start running the app on a simulator
+Choose one of these commands to start running the app on a simulator.
