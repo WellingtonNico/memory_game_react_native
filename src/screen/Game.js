@@ -30,26 +30,32 @@ const AVAILABLE_DECKS = {
 }
 
 const Game = ({ navigation, route }) => {
-
+  const initialFlipDuration = 100
+  const [flipDuration, setFlipDuration] = useState(initialFlipDuration)
   const currentDeck = (AVAILABLE_DECKS[route.params?.deckLetter] ?? []).slice(0, (route.params.dificultyLevel ?? 26) / 2)
   const [displayDeck, setDisplayDeck] = useState([])
   const [startAnimationFinished, setStartAnimationFinished] = useState(false)
+  const [isReadyToPlay, setIsReadyToPlay] = useState(false)
   const [alreadyAnimated, setAlreadyAnimated] = useState(null)
   const [firstSelectedCard, setFirstSelectedCard] = useState(null)
   const [secondSelectedCard, setSecondSelectedCard] = useState(null)
   const [attempts, setAttempts] = useState(0)
   const [matches, setMatches] = useState(0)
+  const [selectedIndex, setSelectedIndex] = useState(null)
 
   const setUpGame = () => {
     setAttempts(0)
     setMatches(0)
+    setSelectedIndex(null)
     setAlreadyAnimated(false)
+    setFlipDuration(initialFlipDuration)
     if (currentDeck.length > 0) {
       const deck = [...currentDeck, ...currentDeck]
-      setDisplayDeck(deck.map(source => ({
+      setDisplayDeck(deck.map((source,index) => ({
         source,
         isFound: false,
-        isFlipped: false
+        isFlipped: false,
+        id:index
       })))
     }
   }
@@ -66,6 +72,7 @@ const Game = ({ navigation, route }) => {
       setAlreadyAnimated(true)
       setTimeout(() => {
         setStartAnimationFinished(false)
+        setFlipDuration(initialFlipDuration)
         animateStartGame(0)
       }, 500)
     }
@@ -79,6 +86,7 @@ const Game = ({ navigation, route }) => {
     }
   }, [startAnimationFinished])
 
+
   const animateStartGame = async (incomingIndex) => {
     var index = incomingIndex
     flipCard(index)
@@ -88,8 +96,10 @@ const Game = ({ navigation, route }) => {
         animateStartGame(index)
       } else {
         setStartAnimationFinished(true)
+        setIsReadyToPlay(true)
+        setFlipDuration(700)
       }
-    }, 150)
+    }, flipDuration)
   }
 
 
@@ -100,42 +110,60 @@ const Game = ({ navigation, route }) => {
     ))
   }
 
-  const handleCardClicked = (index) => {
-    if (!startAnimationFinished) {
+
+  // responsável por setar as cartas selecionadas
+  useEffect(()=>{
+    if(selectedIndex==null){
       return
     }
-    if (!firstSelectedCard || !secondSelectedCard) {
-      const selectedCard = { cardData: displayDeck[index], index }
+    if (firstSelectedCard == null || secondSelectedCard == null) {
+      const selectedCard = { cardData: displayDeck[selectedIndex], index:selectedIndex }
       if (firstSelectedCard == null) {
         setFirstSelectedCard(selectedCard)
-      } else {
+      } else if (secondSelectedCard == null && selectedCard.cardData.id != firstSelectedCard.cardData.id) {
         setSecondSelectedCard(selectedCard)
       }
-      flipCard(index)
+      flipCard(selectedIndex)
     }
-  }
 
-  const unFlipSelectedCards = (selectedCardIndexes) => {
-    setDisplayDeck(displayDeck.map(
-      (card, cardIndex) =>
-        selectedCardIndexes.includes(cardIndex) ? { ...card, isFlipped: false } : card
-    ))
+  },[selectedIndex])
+
+
+  const markSelectedCardsAsFoundAndUnflipNotFoundCards = (foundIndexes) => {
+    setDisplayDeck(
+      displayDeck.map(
+        (card, index) =>
+          foundIndexes.includes(index)
+            ? { ...card, isFound: true }
+            : { ...card, isFlipped: card.isFound }
+      )
+    )
+    setTimeout(() => {
+      setSelectedIndex(null)
+    }, flipDuration)
   }
 
 
   // este é reponsável por verificar se houve match nas cartas selecionadas
   useEffect(() => {
     if (firstSelectedCard != null && secondSelectedCard != null) {
-      if (firstSelectedCard.cardData.source != secondSelectedCard.cardData.source) {
-        setTimeout(() => {
-          unFlipSelectedCards([firstSelectedCard.index, secondSelectedCard.index])
-        }, 500)
-      } else {
+      if (firstSelectedCard.cardData.source == secondSelectedCard.cardData.source) {
         setMatches(p => p + 1)
+        markSelectedCardsAsFoundAndUnflipNotFoundCards(
+          [firstSelectedCard.index, secondSelectedCard.index]
+        )
+      } else {
+        setTimeout(() => {
+          markSelectedCardsAsFoundAndUnflipNotFoundCards([])
+        }, 500)
       }
       setFirstSelectedCard(null)
       setSecondSelectedCard(null)
       setAttempts(p => p + 1)
+    } else {
+      setTimeout(() => {
+        setSelectedIndex(null)
+      }, flipDuration)
     }
   }, [firstSelectedCard, secondSelectedCard])
 
@@ -167,12 +195,16 @@ Acertos: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
           {displayDeck?.map((card, index) => (
             <View key={index} style={styles.cardCol}>
               <AnimatedVerticalFade >
-                <AnimatedPressable pressedScale={.8} onPress={() => handleCardClicked(index)}>
+                <AnimatedPressable
+                  pressedScale={.8}
+                  onPress={() => setSelectedIndex(index)}
+                  feedbackDuration={15}
+                >
                   <AnimatedFlip
                     frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
                     backContent={<Image source={card.source} style={[global.imageFit]} />}
-                    isFlipped={card.isFlipped}
-                    flipDuration={500}
+                    isFlipped={card.isFlipped == true || card.isFound == true}
+                    flipDuration={flipDuration}
                   />
                   <Image source={card.source} style={global.imageFit} />
                 </AnimatedPressable>
