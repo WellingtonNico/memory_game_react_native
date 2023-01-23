@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 function App() {
   return  <NavigationContainer>
     <Stack.Navigator>
-      <Stack.Screen name='ChooseDeck' component={ChooseDeck} options={{headerShown:false}} />
+      <Stack.Screen name='Escolher Naipe' component={ChooseDeck} options={{headerShown:false}} />
       <Stack.Screen name='Jogo da Memória' component={Game} />
     </Stack.Navigator>
   </NavigationContainer>

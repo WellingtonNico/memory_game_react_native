@@ -32,8 +32,6 @@ const AVAILABLE_DECKS = {
 const Game = ({ navigation, route }) => {
   const initialFlipDuration = 100
   const [flipDuration, setFlipDuration] = useState(initialFlipDuration)
-  const currentDeck = (AVAILABLE_DECKS[route.params?.deckLetter] ?? []).slice(0, (route.params.dificultyLevel ?? 26) / 2)
-  const [displayDeck, setDisplayDeck] = useState([])
   const [startAnimationFinished, setStartAnimationFinished] = useState(false)
   const [isReadyToPlay, setIsReadyToPlay] = useState(false)
   const [alreadyAnimated, setAlreadyAnimated] = useState(null)
@@ -42,6 +40,8 @@ const Game = ({ navigation, route }) => {
   const [attempts, setAttempts] = useState(0)
   const [matches, setMatches] = useState(0)
   const [selectedIndex, setSelectedIndex] = useState(null)
+  const currentDeck = (AVAILABLE_DECKS[route.params?.deckLetter] ?? []).slice(0, (route.params.dificultyLevel ?? 26) / 2)
+  const [displayDeck, setDisplayDeck] = useState([])
 
   const setUpGame = () => {
     setAttempts(0)
@@ -51,11 +51,11 @@ const Game = ({ navigation, route }) => {
     setFlipDuration(initialFlipDuration)
     if (currentDeck.length > 0) {
       const deck = [...currentDeck, ...currentDeck]
-      setDisplayDeck(deck.map((source,index) => ({
+      setDisplayDeck(deck.map((source, index) => ({
         source,
         isFound: false,
         isFlipped: false,
-        id:index
+        id: index
       })))
     }
   }
@@ -105,19 +105,20 @@ const Game = ({ navigation, route }) => {
 
   const flipCard = (index) => {
     setDisplayDeck(displayDeck.map(
-      (card, cardIndex) =>
-        index == cardIndex ? { ...card, isFlipped: true } : card
+      (card, cardIndex) => index == cardIndex
+        ? { ...card, isFlipped: true }
+        : card
     ))
   }
 
 
   // responsável por setar as cartas selecionadas
-  useEffect(()=>{
-    if(selectedIndex==null){
+  useEffect(() => {
+    if (selectedIndex == null) {
       return
     }
     if (firstSelectedCard == null || secondSelectedCard == null) {
-      const selectedCard = { cardData: displayDeck[selectedIndex], index:selectedIndex }
+      const selectedCard = { cardData: displayDeck[selectedIndex], index: selectedIndex }
       if (firstSelectedCard == null) {
         setFirstSelectedCard(selectedCard)
       } else if (secondSelectedCard == null && selectedCard.cardData.id != firstSelectedCard.cardData.id) {
@@ -126,7 +127,7 @@ const Game = ({ navigation, route }) => {
       flipCard(selectedIndex)
     }
 
-  },[selectedIndex])
+  }, [selectedIndex])
 
 
   const markSelectedCardsAsFoundAndUnflipNotFoundCards = (foundIndexes) => {
@@ -181,7 +182,7 @@ Acertos: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
           `,
           [
             { text: 'Reiniciar', onPress: setUpGame },
-            { text: 'Escolher Naipe', onPress: () => navigation.goBack('ChooseDeck') }
+            { text: 'Escolher Naipe', onPress: () => navigation.goBack('Escolher Naipe') }
           ]
         )
       }, 500)
@@ -193,12 +194,12 @@ Acertos: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
       <View>
         <Row flexWrap='wrap'>
           {displayDeck?.map((card, index) => (
-            <View key={index} style={styles.cardCol}>
+            <View key={card.id} style={styles.cardCol}>
               <AnimatedVerticalFade >
                 <AnimatedPressable
                   pressedScale={.8}
                   onPress={() => setSelectedIndex(index)}
-                  feedbackDuration={15}
+                  feedbackDuration={10}
                 >
                   <AnimatedFlip
                     frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}

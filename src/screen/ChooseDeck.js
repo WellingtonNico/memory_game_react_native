@@ -32,7 +32,6 @@ const ChooseDeck = ({ navigation }) => {
   const [dificultyLevel, setDificultyLevel] = useState(dificultyLevels[0].value)
 
   const chooseDeck = (deckLetter) => {
-    console.log('nav param', { deckLetter })
     navigation.navigate('Jogo da Memória', { deckLetter, dificultyLevel })
   }
 

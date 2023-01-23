@@ -20,7 +20,6 @@ export default function AnimatedVerticalFade({ children,style, initialPosition =
 
   useEffect(() => {
     verticalPosition.value = withTiming(0, { 'duration':duration })
-    console.log('aplicado')
   }, [])
 
   return (
