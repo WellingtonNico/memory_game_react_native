@@ -82,7 +82,7 @@ const ChooseDeck = ({ navigation }) => {
         <Row >
           <AnimatedVerticalFade>
             <Col width='100%' alignItems='center'>
-              <Text style={{ fontSize: 20, marginBottom: 0 }}>Dificuldade</Text>
+              <Text style={{ fontSize: 20, marginBottom: 0 ,color:'black'}}>Dificuldade</Text>
               <Picker
                 numberOfLines={2}
                 style={{ width: '50%', height: 40 }}
@@ -92,7 +92,7 @@ const ChooseDeck = ({ navigation }) => {
                 }}
               >
                 {dificultyLevels.map(level => (
-                  <Picker.Item itemValue={level.value} value={level.value} key={level.value} label={level.label} />
+                  <Picker.Item itemValue={level.value} value={level.value} key={level.value} label={level.label} style={{color:'black'}} />
                 ))}
               </Picker>
             </Col>

@@ -18,3 +18,6 @@ You'll also need to install some ruby packages, be sure you have a ruby version 
 
 ### `npm run android` or `npm run ios`
 Choose one of these commands to start running the app on a simulator.
+
+### `npm run build_debug_apk`
+Run this command to build a debug apk, after finish it's gonna be placed in ./android/app/buid/outputs/apk/debug
