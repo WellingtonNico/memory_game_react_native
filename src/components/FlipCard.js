@@ -1,5 +1,5 @@
-import { View, Text, Image, StyleSheet } from 'react-native'
-import React from 'react'
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native'
+import React,{memo} from 'react'
 import AnimatedVerticalFade from './animated/AnimatedVerticalFade'
 import AnimatedPressable from './animated/AnimatedPressable'
 import global from '../styles/global'
@@ -7,24 +7,27 @@ import { getScreenHeight } from '../utils/utils'
 import AnimatedFlip from './animated/AnimatedFlip'
 import cardBack from '../../assets/back.png'
 
-export default function FlipCard({ card, onPress, flipDuration }) {
+const FlipCard = ({ source, onPress,index,isFlipped, flipDuration }) => {
+
+  console.log('renderizada ',index)
 
   return (
-    <View key={card.id} style={styles.cardCol}>
+    <View style={styles.cardCol}>
       <AnimatedVerticalFade >
-        <AnimatedPressable
+        {/* <AnimatedPressable
           pressedScale={.8}
-          onPress={() => onPress(index)}
+          onPress={()=>onPress(index)}
           feedbackDuration={10}
-        >
+        > */}
+        <Pressable onPress={()=>onPress(index)}>
           <AnimatedFlip
             frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
-            backContent={<Image source={card.source} style={[global.imageFit]} />}
-            isFlipped={card.isFlipped == true || card.isFound == true}
+            backContent={<Image source={source} style={[global.imageFit]} />}
+            isFlipped={isFlipped}
             flipDuration={flipDuration}
           />
-          <Image source={card.source} style={global.imageFit} />
-        </AnimatedPressable>
+        </Pressable>
+        {/* </AnimatedPressable> */}
       </AnimatedVerticalFade>
     </View>
   )
@@ -40,3 +43,5 @@ const styles = StyleSheet.create({
     borderRadius: 5
   },
 });
+
+export default memo(FlipCard)

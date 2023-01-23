@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View, Alert, StyleSheet, Image, SafeAreaView } from 'react-native'
 import { Row } from '../components/layout/bootstrap_like'
 import { C_CARDS_LIST, S_CARDS_LIST, H_CARDS_LIST, D_CARDS_LIST } from '../constants'
@@ -19,12 +19,13 @@ const Game = ({ navigation, route }) => {
   const [startAnimationFinished, setStartAnimationFinished] = useState(false)
   const [alreadyAnimated, setAlreadyAnimated] = useState(null)
   const [firstSelectedCard, setFirstSelectedCard] = useState(null)
-  const [secondSelectedCard, setSecondSelectedCard] = useState(null)
   const [attempts, setAttempts] = useState(0)
   const [matches, setMatches] = useState(0)
   const [selectedIndex, setSelectedIndex] = useState(null)
   const currentDeck = (AVAILABLE_DECKS[route.params?.deckLetter] ?? []).slice(0, (route.params.dificultyLevel ?? 26) / 2)
   const [displayDeck, setDisplayDeck] = useState([])
+
+  console.log('parent re-render')
 
   const setUpGame = () => {
     setAttempts(0)
@@ -32,15 +33,17 @@ const Game = ({ navigation, route }) => {
     setSelectedIndex(null)
     setAlreadyAnimated(false)
     setFlipDuration(initialFlipDuration)
-    if (currentDeck.length > 0) {
-      const deck = [...currentDeck, ...currentDeck]
-      setDisplayDeck(deck.map((source, index) => ({
-        source,
-        isFound: false,
-        isFlipped: false,
-        id: index
-      })))
+    if (currentDeck.length == 0) {
+      return
     }
+    const deck = [...currentDeck, ...currentDeck]
+    const shuffledDeck = shuffleArray(deck)
+    setDisplayDeck(shuffledDeck.map((source, index) => ({
+      source,
+      isFound: false,
+      isFlipped: false,
+      key: index
+    })))
   }
 
 
@@ -62,14 +65,6 @@ const Game = ({ navigation, route }) => {
   }, [displayDeck])
 
 
-  // este é responsável por embaralhar as cartas após a animação inicial
-  useEffect(() => {
-    if (startAnimationFinished == true) {
-      setDisplayDeck(shuffleArray(displayDeck))
-    }
-  }, [startAnimationFinished])
-
-
   const animateStartGame = async (incomingIndex) => {
     var index = incomingIndex
     flipCard(index)
@@ -84,43 +79,42 @@ const Game = ({ navigation, route }) => {
     }, flipDuration)
   }
 
-
+  /**
+   * @param {Integer} index indice da carta para flipar
+   * @returns uma nova lista de cartas com a carta específica flipada
+   */
   const flipCard = (index) => {
-    setDisplayDeck(displayDeck.map(
+    const newDeck = displayDeck.map(
       (card, cardIndex) => index == cardIndex
         ? { ...card, isFlipped: true }
         : card
-    ))
+    )
+    setDisplayDeck(newDeck)
+    return newDeck
   }
 
 
   // responsável por setar as cartas selecionadas
-  useEffect(() => {
-    if (selectedIndex == null) {
-      return
+  const handleCardSelected = (index) => {
+    const selectedCard = { cardData: displayDeck[index], index }
+    if (firstSelectedCard == null) {
+      setFirstSelectedCard(selectedCard)
+      flipCard(index)
+      setTimeout(() => { setSelectedIndex(null) }, 500)
+    } else if (selectedCard.cardData.key != firstSelectedCard.cardData.key) {
+      const newDeck = flipCard(index)
+      verifyMatch(firstSelectedCard, selectedCard, newDeck)
     }
-    if (firstSelectedCard == null || secondSelectedCard == null) {
-      const selectedCard = { cardData: displayDeck[selectedIndex], index: selectedIndex }
-      if (firstSelectedCard == null) {
-        setFirstSelectedCard(selectedCard)
-      } else if (secondSelectedCard == null && selectedCard.cardData.id != firstSelectedCard.cardData.id) {
-        setSecondSelectedCard(selectedCard)
-      }
-      flipCard(selectedIndex)
-    }
-
-  }, [selectedIndex])
+  }
 
 
-  const markSelectedCardsAsFoundAndUnflipNotFoundCards = (foundIndexes) => {
-    setDisplayDeck(
-      displayDeck.map(
-        (card, index) =>
-          foundIndexes.includes(index)
-            ? { ...card, isFound: true }
-            : { ...card, isFlipped: card.isFound }
-      )
-    )
+  const markSelectedCardsAsFoundAndUnflipNotFoundCards = (deck, foundIndexes) => {
+    setDisplayDeck(deck.map(
+      (card, index) =>
+        foundIndexes.includes(index)
+          ? { ...card, isFound: true }
+          : { ...card, isFlipped: card.isFound }
+    ))
     setTimeout(() => {
       setSelectedIndex(null)
     }, flipDuration)
@@ -128,27 +122,20 @@ const Game = ({ navigation, route }) => {
 
 
   // este é reponsável por verificar se houve match nas cartas selecionadas
-  useEffect(() => {
-    if (firstSelectedCard != null && secondSelectedCard != null) {
-      if (firstSelectedCard.cardData.source == secondSelectedCard.cardData.source) {
-        setMatches(p => p + 1)
-        markSelectedCardsAsFoundAndUnflipNotFoundCards(
-          [firstSelectedCard.index, secondSelectedCard.index]
-        )
-      } else {
-        setTimeout(() => {
-          markSelectedCardsAsFoundAndUnflipNotFoundCards([])
-        }, 500)
-      }
-      setFirstSelectedCard(null)
-      setSecondSelectedCard(null)
-      setAttempts(p => p + 1)
+  const verifyMatch = (iFirstSelectedCard, currentSelectedCard, newDeck) => {
+    setAttempts(p => p + 1)
+    if (iFirstSelectedCard.cardData.source == currentSelectedCard.cardData.source) {
+      setMatches(p => p + 1)
+      markSelectedCardsAsFoundAndUnflipNotFoundCards(
+        newDeck, [iFirstSelectedCard.index, currentSelectedCard.index]
+      )
     } else {
       setTimeout(() => {
-        setSelectedIndex(null)
-      }, flipDuration)
+        markSelectedCardsAsFoundAndUnflipNotFoundCards(newDeck, [])
+      }, 500)
     }
-  }, [firstSelectedCard, secondSelectedCard])
+    setFirstSelectedCard(null)
+  }
 
 
   // responsável por verificar se ainda restam movimentos a serem feitos, contagem e display do resultado
@@ -171,12 +158,34 @@ Acertos: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
     }
   }, [matches])
 
+
+  const handleSelected = (index)=>{
+    console.log('clicado' ,index)
+    // if (selectedIndex != null && startAnimationFinished) {
+    //   return
+    // }
+    setSelectedIndex(index)
+    handleCardSelected(index)
+  }
+
+
+  const handleClickCallback = useCallback((index) => {
+    handleSelected(index)
+  }, [displayDeck])
+
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center' }}>
       <View>
         <Row flexWrap='wrap'>
           {displayDeck?.map((card, index) => (
-            <FlipCard card={card} key={card.id} flipDuration={flipDuration} onPress={setSelectedIndex}/>
+            <FlipCard
+              isFlipped={card.isFlipped == true || card.isFound == true}
+              source={card.source}
+              key={card.key}
+              index={index}
+              flipDuration={flipDuration}
+              onPress={handleClickCallback}
+            />
           ))}
         </Row>
       </View>
