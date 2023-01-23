@@ -1,26 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { View, Alert, StyleSheet, Image, SafeAreaView } from 'react-native'
-import AnimatedFlip from "../components/animated/AnimatedFlip"
-import AnimatedPressable from "../components/animated/AnimatedPressable"
-import { Col, Row } from '../components/layout/bootstrap_like'
+import { Row } from '../components/layout/bootstrap_like'
 import { C_CARDS_LIST, S_CARDS_LIST, H_CARDS_LIST, D_CARDS_LIST } from '../constants'
-import global from '../styles/global'
 import { getScreenHeight, shuffleArray } from '../utils/utils'
-import cardBack from '../../assets/back.png'
-import AnimatedVerticalFade from '../components/animated/AnimatedVerticalFade'
+import FlipCard from '../components/FlipCard'
 
-
-{/* <AnimatedPressable
-onPress={flip}
-style={[styles.cardContainer]}
->
-<AnimatedFlip
-  frontContent={<Image source={cardBack} style={[styles.card, styles.cardBack]} />}
-  backContent={<Image source={cardImage} style={[styles.card]} />}
-  isFlipped={isFlipped}
-  flipDuration={1000}
-/>
-</AnimatedPressable> */}
 
 const AVAILABLE_DECKS = {
   C: C_CARDS_LIST,
@@ -33,7 +17,6 @@ const Game = ({ navigation, route }) => {
   const initialFlipDuration = 100
   const [flipDuration, setFlipDuration] = useState(initialFlipDuration)
   const [startAnimationFinished, setStartAnimationFinished] = useState(false)
-  const [isReadyToPlay, setIsReadyToPlay] = useState(false)
   const [alreadyAnimated, setAlreadyAnimated] = useState(null)
   const [firstSelectedCard, setFirstSelectedCard] = useState(null)
   const [secondSelectedCard, setSecondSelectedCard] = useState(null)
@@ -96,7 +79,6 @@ const Game = ({ navigation, route }) => {
         animateStartGame(index)
       } else {
         setStartAnimationFinished(true)
-        setIsReadyToPlay(true)
         setFlipDuration(700)
       }
     }, flipDuration)
@@ -194,23 +176,7 @@ Acertos: ${matches} = ${(matches * 100 / attempts).toFixed(2)}%
       <View>
         <Row flexWrap='wrap'>
           {displayDeck?.map((card, index) => (
-            <View key={card.id} style={styles.cardCol}>
-              <AnimatedVerticalFade >
-                <AnimatedPressable
-                  pressedScale={.8}
-                  onPress={() => setSelectedIndex(index)}
-                  feedbackDuration={10}
-                >
-                  <AnimatedFlip
-                    frontContent={<Image source={cardBack} style={[global.imageFit, styles.cardBack]} />}
-                    backContent={<Image source={card.source} style={[global.imageFit]} />}
-                    isFlipped={card.isFlipped == true || card.isFound == true}
-                    flipDuration={flipDuration}
-                  />
-                  <Image source={card.source} style={global.imageFit} />
-                </AnimatedPressable>
-              </AnimatedVerticalFade>
-            </View>
+            <FlipCard card={card} key={card.id} flipDuration={flipDuration} onPress={setSelectedIndex}/>
           ))}
         </Row>
       </View>
